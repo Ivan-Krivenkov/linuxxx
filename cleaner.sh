@@ -31,14 +31,12 @@ else
 fi
 ARCHIVE="$BACKUP_DIR/backup_${TIMESTAMP}.${EXT}"
 
-# Считаем, сколько КБ нужно освободить, чтобы достичь порога
 TARGET_KB=$((LIMIT_KB * THRESHOLD / 100))
 NEED_TO_FREE_KB=$((SIZE_KB - TARGET_KB))
 
 FILES=()
 FREED_KB=0
 
-# Читаем файлы по дате (от старых к новым) и берем их, пока не освободим нужный объем
 while IFS= read -r line; do
     if [ "$FREED_KB" -ge "$NEED_TO_FREE_KB" ]; then break; fi
     FILE_SIZE=$(echo "$line" | awk '{print $2}')
@@ -53,10 +51,8 @@ if [ "${#FILES[@]}" -eq 0 ]; then
     exit 0
 fi
 
-# Архивируем выбранные файлы (флаг -C убирает предупреждение про слэши)
 tar $TAR_OPTS "$ARCHIVE" -C "$LOG_DIR" "${FILES[@]}"
 
-# Удаляем оригиналы
 for f in "${FILES[@]}"; do
     rm -f "$LOG_DIR/$f"
 done
